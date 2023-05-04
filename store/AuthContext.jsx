@@ -9,7 +9,9 @@ export const AuthContext = createContext({
     isVerified: false,
     verify: (verified) => {},
     authenticate: (token) => {}, 
-    logout: () => {}
+    logout: () => {}, 
+    user: {}, 
+    setUser: (user) => {}
 });
 
 function AuthContextProvider({ children }) 
@@ -35,7 +37,7 @@ function AuthContextProvider({ children })
         isVerified: !!isVerified,
         verify: verify,
         authenticate: authenticate, 
-        logout: logout,
+        logout: logout
     }
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

@@ -1,39 +1,46 @@
 import { useState, useRef, useContext } from 'react';
-import { SafeAreaView, View, TouchableOpacity, Text, ScrollView } from 'react-native';
-import Buttons from '../../core/components/Buttons';
+import { View, TouchableOpacity, Text, ScrollView } from 'react-native';
+import Buttons from 'js-tenancy-core/components/Buttons';
 
 import { AntDesign } from '@expo/vector-icons';
-import { AuthContext } from '../../store/AuthContext';
-
-import { AppForm, AppInputText, ErrorMessage } from '../../components/form';
+import { AuthContext } from 'js-tenancy-auth/store/AuthContext';
+import { AppForm, AppInputText, ErrorMessage } from 'js-tenancy-core/components/form';
 
 import * as Yup from 'yup';
-import userApi from '../../api/user';
-import TitleAndDescription from '../../components/login/TitleAndDescription';
+import userApi from 'js-tenancy-auth/api/user';
+import TitleAndDescription from 'js-tenancy-auth/components/TitleAndDescription';
 import * as Linking from 'expo-linking';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import useAuth from 'js-tenancy-auth/hooks/useAuth';
 
 const LoginScreen = ({ navigation }) => { 
 
+    const auth = useAuth();
     const formRef = useRef();
     const authCtx = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState();
     
     const login = async (formValues) => {
-        authCtx.verify(false);
-        const verifyAccountBaseLink = Linking.createURL('/activate-account');
-        const response = await userApi.login({...formValues, device_name: 'mobileApplication', link: verifyAccountBaseLink});
-        if(!response.ok) {
-            setError(`There has been an issue logging in: ${response?.data?.message}`);
-        } else {
-            console.log(response.data.token);
-            authCtx.authenticate(response?.data?.token);
-            authCtx.verify(response?.data?.verified === true);
-            if(response?.data?.verified === false) {
-                navigation.navigate('Activate Account');
+
+        try {
+            const verifyAccountBaseLink = Linking.createURL('/activate-account');
+            const response = await userApi.login({...formValues, device_name: 'mobileApplication', link: verifyAccountBaseLink});
+
+            if(!response.ok) {
+                console.error(response?.data?.message)
+                setError(`There has been an issue logging in: ${response?.data?.message}`);
+            } else {
+                //authCtx.authenticate(response?.data?.token);
+                auth.logIn(response?.data?.token);
+                //authCtx.verify(response?.data?.verified === true);
+                //if(response?.data?.verified === false) {
+                //    navigation.navigate('Activate Account');
+                //}
+                setError(null);
             }
-            setError(null);
+        } catch (error) {
+            console.error(error);
         }
         setIsLoading(false);
     }
@@ -50,12 +57,7 @@ const LoginScreen = ({ navigation }) => {
     })
     
     return (            
-        <SafeAreaView className="flex-1 bg-blue-50">
-
-
-                        
-
-                        
+        <View className="flex flex-1 bg-blue-40">
             <TouchableOpacity onPress={() => { navigation.navigate('Landing') }} className="top-5 left-5 z-10">
                 <AntDesign name="arrowleft" size={30} color="black" />
             </TouchableOpacity>
@@ -110,7 +112,7 @@ const LoginScreen = ({ navigation }) => {
                     />
                 </View>
             </View>
-        </SafeAreaView>
+        </View>
     );
 };
 
