@@ -6,15 +6,19 @@ import authStorage from "js-tenancy-auth/storage";
 export default useAuth = () => {
   const { user, setUser } = useContext(AuthContext);
 
-  const logIn = (authToken) => {
-    setUser(authToken);
-    authStorage.storeToken(authToken);
+  const logIn = (user) => {
+    setUser(user);
+    authStorage.storeToken(JSON.stringify(user));
   };
+
+  const verifyUser = () => {
+    setUser({...user, verified: true});
+  }
 
   const logOut = () => {
     setUser(null);
     authStorage.removeToken();
   };
 
-  return { user, logIn, logOut };
+  return { user, verifyUser, logIn, logOut };
 };

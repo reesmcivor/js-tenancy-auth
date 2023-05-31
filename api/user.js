@@ -1,5 +1,8 @@
 import apiClient from "js-tenancy-core/api/client";
 
+const lookupEndpoint = '/user/lookup';
+const lookup = user => apiClient.get(lookupEndpoint, {email: email});
+
 const loginEndpoint = '/user/login';
 const login = user => apiClient.post(loginEndpoint, user);
 
